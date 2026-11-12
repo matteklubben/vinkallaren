@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Akt 3 - Vinkällarens Labyrint</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .maze-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 2px;
+      background: #0d0407;
+      padding: 6px;
+      border-radius: 12px;
+      border: 2px solid var(--gold);
+      max-width: 340px;
+      margin: 12px auto;
+    }
+    .cell {
+      aspect-ratio: 1 / 1;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 0.95rem;
+    }
+    .cell.wall {
+      background: #421826;
+    }
+    .cell.path {
+      background: #1a0c11;
+      color: var(--gold-light);
+    }
+    .collected-bar {
+      text-align: center;
+      font-family: monospace;
+      font-size: 1.15rem;
+      letter-spacing: 0.25em;
+      color: var(--gold-light);
+      background: #14080d;
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="hud" class="hud-bar"></div>
+
+    <div class="card">
+      <h2>Steg 3.1: Vinkällarens Labyrint</h2>
+      <p>Styr vindroppen (💧) genom gångarna fram till kristallglaset (🥂) med pilknapparna nedan. Samla upp de <strong>4 bokstäverna</strong> på vägen!</p>
+
+      <div class="collected-bar">SAMLADE BOKSTÄVER: <span id="lettersDisplay">_ _ _ _</span></div>
+
+      <div id="mazeGrid" class="maze-grid"></div>
+
+      <!-- Pilknappar för att styra droppen -->
+      <div class="dpad" aria-label="Styr vindroppen">
+        <button class="dpad-btn dpad-up" onclick="move(0, -1)" aria-label="Upp">▲</button>
+        <button class="dpad-btn dpad-left" onclick="move(-1, 0)" aria-label="Vänster">◀</button>
+        <div class="dpad-center">💧</div>
+        <button class="dpad-btn dpad-right" onclick="move(1, 0)" aria-label="Höger">▶</button>
+        <button class="dpad-btn dpad-down" onclick="move(0, 1)" aria-label="Ner">▼</button>
+      </div>
+
+      <div id="winBox" style="display:none; margin-top:14px;">
+        <div class="feedback success" style="display:block; margin-bottom:10px;">
+          Snyggt navigerat! Ni samlade ihop kodordet: <strong>BRUT</strong>
+        </div>
+        <a href="akt3-simon.html" class="btn btn-gold">Gå vidare till sista testet →</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    renderHUD("Akt 3 • Steg 1/2", 2);
+
+    // 9x9 labyrint: 1 = vägg, 0 = gång
+    const MAZE = [
+      [1,1,1,1,1,1,1,1,1],
+      [1,0,0,0,1,0,0,0,1],
+      [1,0,1,0,1,0,1,0,1],
+      [1,0,1,0,0,0,1,0,1],
+      [1,0,1,1,1,1,1,0,1],
+      [1,0,0,0,0,0,0,0,1],
+      [1,1,1,0,1,1,1,0,1],
+      [1,0,0,0,1,0,0,0,1],
+      [1,1,1,1,1,1,1,1,1]
+    ];
+
+    let player = { x: 1, y: 1 };
+    const goal = { x: 7, y: 7 };
+
+    // Bokstäver längs vägen: B - R - U - T
+    const items = [
+      { x: 3, y: 1, char: "B", got: false },
+      { x: 5, y: 3, char: "R", got: false },
+      { x: 3, y: 5, char: "U", got: false },
+      { x: 7, y: 5, char: "T", got: false }
+    ];
+
+    function renderMaze() {
+      const grid = document.getElementById("mazeGrid");
+      grid.innerHTML = "";
+
+      for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+          const cell = document.createElement("div");
+          cell.className = "cell " + (MAZE[y][x] === 1 ? "wall" : "path");
+
+          if (player.x === x && player.y === y) {
+            cell.textContent = "💧";
+          } else if (goal.x === x && goal.y === y) {
+            cell.textContent = "🥂";
+          } else {
+            const item = items.find(it => it.x === x && it.y === y && !it.got);
+            if (item) cell.textContent = item.char;
+          }
+          grid.appendChild(cell);
+        }
+      }
+
+      const word = items.map(it => it.got ? it.char : "_").join(" ");
+      document.getElementById("lettersDisplay").textContent = word;
+    }
+
+    function move(dx, dy) {
+      const nx = player.x + dx;
+      const ny = player.y + dy;
+      if (MAZE[ny] && MAZE[ny][nx] === 0) {
+        player.x = nx;
+        player.y = ny;
+
+        const found = items.find(it => it.x === nx && it.y === ny);
+        if (found) found.got = true;
+
+        renderMaze();
+
+        if (player.x === goal.x && player.y === goal.y) {
+          // Markera alla som tagna om man hittat fram
+          items.forEach(it => it.got = true);
+          renderMaze();
+          document.getElementById("winBox").style.display = "block";
+        }
+      }
+    }
+
+    // Stöd även för tangentbordspilar om någon testar på dator
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowUp") move(0, -1);
+      if (e.key === "ArrowDown") move(0, 1);
+      if (e.key === "ArrowLeft") move(-1, 0);
+      if (e.key === "ArrowRight") move(1, 0);
+    });
+
+    renderMaze();
+  </script>
+</body>
+</html>

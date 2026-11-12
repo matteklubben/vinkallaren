@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Akt 2 - Druvreglagen</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .switch-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .switch-row {
+      background: var(--bg-card-elevated);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .grape-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-main);
+    }
+    .toggle-pill {
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      border: 2px solid transparent;
+      cursor: pointer;
+      min-width: 110px;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .toggle-pill.red {
+      background: #6e142c;
+      color: #ffd6e0;
+      border-color: #d6456b;
+    }
+    .toggle-pill.white {
+      background: #e6d690;
+      color: #2b2308;
+      border-color: #fff3b8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="hud" class="hud-bar"></div>
+
+    <div class="card">
+      <h2>Steg 2.2: Sommelierens Reglage</h2>
+      <p>Tryck på knapparna för att ställa in om respektive druva är en <strong>RÖD (blå)</strong> eller <strong>VIT (grön)</strong> vindruva:</p>
+
+      <div class="switch-list">
+        <div class="switch-row">
+          <span class="grape-name">1. Merlot</span>
+          <button id="sw0" class="toggle-pill white" onclick="toggleSwitch(0)">⚪ VIT DRUVA</button>
+        </div>
+        <div class="switch-row">
+          <span class="grape-name">2. Chardonnay</span>
+          <button id="sw1" class="toggle-pill red" onclick="toggleSwitch(1)">🍷 RÖD DRUVA</button>
+        </div>
+        <div class="switch-row">
+          <span class="grape-name">3. Pinot Noir</span>
+          <button id="sw2" class="toggle-pill white" onclick="toggleSwitch(2)">⚪ VIT DRUVA</button>
+        </div>
+        <div class="switch-row">
+          <span class="grape-name">4. Sauvignon Blanc</span>
+          <button id="sw3" class="toggle-pill red" onclick="toggleSwitch(3)">🍷 RÖD DRUVA</button>
+        </div>
+      </div>
+
+      <button class="btn" onclick="checkSwitches()">Testa strömkretsen →</button>
+      <div id="feedback" class="feedback"></div>
+
+      <details class="hint-box">
+        <summary>Behöver ni en ledtråd?</summary>
+        <p>Merlot och Pinot Noir är klassiska rödvinsdruvor. Chardonnay och Sauvignon Blanc är klassiska vitvinsdruvor (Blanc betyder vit på franska!).</p>
+      </details>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    renderHUD("Akt 2 • Steg 2/3", 1);
+
+    // Startlägen (alla fel från början): false = vit, true = röd
+    const state = [false, true, false, true];
+    // Rätt svar: Merlot (true), Chardonnay (false), Pinot Noir (true), Sauvignon Blanc (false)
+    const target = [true, false, true, false];
+
+    function toggleSwitch(i) {
+      state[i] = !state[i];
+      const btn = document.getElementById("sw" + i);
+      if (state[i]) {
+        btn.className = "toggle-pill red";
+        btn.textContent = "🍷 RÖD DRUVA";
+      } else {
+        btn.className = "toggle-pill white";
+        btn.textContent = "⚪ VIT DRUVA";
+      }
+    }
+
+    function checkSwitches() {
+      const fb = document.getElementById("feedback");
+      const ok = state.every((v, idx) => v === target[idx]);
+      if (ok) {
+        fb.className = "feedback success";
+        fb.textContent = "Kretsen är sluten! Öppnar sista utmaningen i Akt 2...";
+        setTimeout(() => {
+          window.location.href = "akt2-matte.html";
+        }, 850);
+      } else {
+        fb.className = "feedback error";
+        fb.textContent = "Kortslutning! Minst en druva har fel färg.";
+      }
+    }
+  </script>
+</body>
+</html>

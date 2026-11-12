@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Akt 2 - Källarens Ekvation</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .eq-box {
+      background: #14080d;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin: 14px 0;
+      font-size: 1.35rem;
+      font-weight: 700;
+      text-align: center;
+      line-height: 2;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="hud" class="hud-bar"></div>
+
+    <div class="card" id="puzzleCard">
+      <h2>Steg 2.3: Källarmästarens Ekvation</h2>
+      <p>Räkna ut vilket tal som döljer sig bakom <strong>druvklasen (🍇)</strong> på sista raden:</p>
+
+      <div class="eq-box">
+        <div>🍷 + 🍷 = 12</div>
+        <div>🍷 + 🧀 = 10</div>
+        <div>🧀 × 🍇 = 20</div>
+        <div style="color:var(--gold-light); border-top:1px dashed var(--border); margin-top:8px; padding-top:8px;">
+          🍇 = ?
+        </div>
+      </div>
+
+      <input type="number" id="mathInput" placeholder="SKRIV TALET..." inputmode="numeric" />
+      <button class="btn" onclick="checkMath()">Lås upp andra siffran →</button>
+      <div id="feedback" class="feedback"></div>
+
+      <details class="hint-box">
+        <summary>Behöver ni en ledtråd?</summary>
+        <p>Två vinglas är 12, alltså är ett 🍷 = 6. Då måste osten 🧀 vara 4 (eftersom 6 + 4 = 10). Vad gånger 4 blir 20?</p>
+      </details>
+    </div>
+
+    <div class="card" id="rewardCard" style="display:none;">
+      <div class="digit-reveal">
+        <p style="margin:0; color:var(--gold); font-weight:700;">AKT 2 AVKLARAD!</p>
+        <div class="digit-big" id="revealedDigit"></div>
+        <p style="margin:0;">Detta är den <strong>andra siffran</strong> i hänglåsets kod.</p>
+      </div>
+      <a href="akt3-labyrint.html" class="btn btn-gold">Gå vidare till sista akten (Akt 3) →</a>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    renderHUD("Akt 2 • Steg 3/3", 1);
+
+    function checkMath() {
+      const val = document.getElementById("mathInput").value.trim();
+      const fb = document.getElementById("feedback");
+      if (val === "5") {
+        document.getElementById("puzzleCard").style.display = "none";
+        document.getElementById("rewardCard").style.display = "block";
+        document.getElementById("revealedDigit").textContent = VAULT_CONFIG.digit2;
+        renderHUD("Akt 2 Klar!", 2);
+      } else {
+        fb.className = "feedback error";
+        fb.textContent = "Inte riktigt! Räkna rad för rad uppifrån och ner.";
+      }
+    }
+  </script>
+</body>
+</html>

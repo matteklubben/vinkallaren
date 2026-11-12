@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Akt 2 - Källarens Memory</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .mem-card {
+      aspect-ratio: 1 / 1;
+      background: var(--bg-card-elevated);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.15s, border-color 0.15s, background 0.2s;
+    }
+    .mem-card.cursor {
+      border-color: var(--gold-light);
+      box-shadow: 0 0 0 3px rgba(243, 215, 120, 0.45);
+      transform: scale(1.04);
+    }
+    .mem-card.flipped, .mem-card.matched {
+      background: #361a26;
+      border-color: var(--gold);
+    }
+    .mem-card.matched {
+      background: rgba(46, 139, 87, 0.25);
+      border-color: var(--success);
+    }
+    .secret-clue-reveal {
+      background: #14080d;
+      border: 1px solid var(--gold);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 12px;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="hud" class="hud-bar"></div>
+
+    <div class="card">
+      <h2>Steg 2.1: Källarens Memory</h2>
+      <p>Para ihop alla 6 vinrelaterade symboler för att avslöja nästa hemliga meddelande. Styr markören med pilknapparna eller tryck direkt på korten!</p>
+
+      <div id="memoryGrid" class="memory-grid"></div>
+
+      <!-- Pilknappar för styrning -->
+      <div class="dpad" aria-label="Styrkort">
+        <button class="dpad-btn dpad-up" onclick="moveCursor(0, -1)" aria-label="Upp">▲</button>
+        <button class="dpad-btn dpad-left" onclick="moveCursor(-1, 0)" aria-label="Vänster">◀</button>
+        <button class="dpad-btn dpad-center" onclick="selectCurrentCard()" aria-label="Vänd kort">OK</button>
+        <button class="dpad-btn dpad-right" onclick="moveCursor(1, 0)" aria-label="Höger">▶</button>
+        <button class="dpad-btn dpad-down" onclick="moveCursor(0, 1)" aria-label="Ner">▼</button>
+      </div>
+
+      <div id="secretClue" class="secret-clue-reveal">
+        <p style="color:var(--gold-light); font-weight:700; margin-bottom:6px;">🎉 Alla par hittade!</p>
+        <p style="font-size:0.9rem;">Under korten stod en instruktion: <em>"Ställ in druvreglagen i ordningen: <strong>Merlot – Chardonnay – Pinot Noir – Sauvignon Blanc</strong>."</em></p>
+        <a href="akt2-reglage.html" class="btn btn-gold" style="margin-top:8px;">Öppna druvreglagen →</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    renderHUD("Akt 2 • Steg 1/3", 1);
+
+    const SYMBOLS = ["🍷", "🍇", "🍾", "🧀", "🗝️", "🛢️"];
+    let deck = [...SYMBOLS, ...SYMBOLS].sort(() => Math.random() - 0.5);
+    let flipped = [];
+    let matched = new Set();
+    let lockBoard = false;
+    let cursorIndex = 0; // 0..11 (4 kolumner x 3 rader)
+
+    function renderGrid() {
+      const grid = document.getElementById("memoryGrid");
+      grid.innerHTML = "";
+      deck.forEach((sym, idx) => {
+        const div = document.createElement("div");
+        const isFlipped = flipped.includes(idx);
+        const isMatched = matched.has(idx);
+        div.className = "mem-card" +
+          (idx === cursorIndex ? " cursor" : "") +
+          (isFlipped ? " flipped" : "") +
+          (isMatched ? " matched" : "");
+        div.textContent = (isFlipped || isMatched) ? sym : "❓";
+        div.onclick = () => {
+          cursorIndex = idx;
+          flipCard(idx);
+        };
+        grid.appendChild(div);
+      });
+    }
+
+    function moveCursor(dx, dy) {
+      let col = cursorIndex % 4;
+      let row = Math.floor(cursorIndex / 4);
+      col = (col + dx + 4) % 4;
+      row = (row + dy + 3) % 3;
+      cursorIndex = row * 4 + col;
+      renderGrid();
+    }
+
+    function selectCurrentCard() {
+      flipCard(cursorIndex);
+    }
+
+    function flipCard(idx) {
+      if (lockBoard || flipped.includes(idx) || matched.has(idx)) return;
+      flipped.push(idx);
+      renderGrid();
+
+      if (flipped.length === 2) {
+        lockBoard = true;
+        const [a, b] = flipped;
+        if (deck[a] === deck[b]) {
+          matched.add(a);
+          matched.add(b);
+          flipped = [];
+          lockBoard = false;
+          renderGrid();
+          if (matched.size === deck.length) {
+            document.getElementById("secretClue").style.display = "block";
+          }
+        } else {
+          setTimeout(() => {
+            flipped = [];
+            lockBoard = false;
+            renderGrid();
+          }, 750);
+        }
+      }
+    }
+
+    renderGrid();
+  </script>
+</body>
+</html>

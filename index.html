@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Vinkällarens Säkerhetsvalv</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div id="hud" class="hud-bar"></div>
+
+    <div class="card">
+      <h1>🍷 Vinkällarens Valv</h1>
+      <p>Välkomna! Den här lådan är säkrad med ett tresiffrigt kombinationslås. För att låsa upp koden måste ni ta er igenom <strong>tre akter</strong> av pussel, gåtor och minispel direkt här i mobilen.</p>
+      <p class="muted">Tips: Samarbeta gärna och vrid upp skärmens ljusstyrka!</p>
+    </div>
+
+    <div class="card">
+      <h2>Steg 1.1: Säkerhetsnyckeln</h2>
+      <p>Avkoda det krypterade lösenordet med hjälp av siffernyckeln nedan (A=1, B=2, C=3...):</p>
+
+      <div class="clue-box">22 - 9 - 14 - 16 - 18 - 15 - 22 - 14 - 9 - 14 - 7</div>
+
+      <div class="cipher-key">
+        <span>A=1</span><span>B=2</span><span>C=3</span><span>D=4</span><span>E=5</span><span>F=6</span><span>G=7</span>
+        <span>H=8</span><span>I=9</span><span>J=10</span><span>K=11</span><span>L=12</span><span>M=13</span><span>N=14</span>
+        <span>O=15</span><span>P=16</span><span>Q=17</span><span>R=18</span><span>S=19</span><span>T=20</span><span>U=21</span>
+        <span>V=22</span><span>W=23</span><span>X=24</span><span>Y=25</span><span>Z=26</span><span>Å=27</span>
+      </div>
+
+      <input type="text" id="cipherInput" placeholder="SKRIV LÖSENORDET..." autocomplete="off" />
+      <button class="btn" onclick="checkCipher()">Lås upp nästa steg →</button>
+      <div id="feedback" class="feedback"></div>
+
+      <details class="hint-box">
+        <summary>Behöver ni en ledtråd?</summary>
+        <p>Ordet består av 11 bokstäver och är det man gör när man smakar och bedömer olika sorters vin. Börjar på V och slutar på G.</p>
+      </details>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    renderHUD("Akt 1 • Steg 1/3", 0);
+
+    function checkCipher() {
+      const val = document.getElementById("cipherInput").value.trim().toUpperCase();
+      const fb = document.getElementById("feedback");
+      if (val === "VINPROVNING") {
+        fb.className = "feedback success";
+        fb.textContent = "Rätt lösenord! Öppnar vinkällarmästarens arkiv...";
+        setTimeout(() => {
+          window.location.href = "akt1-etikett.html";
+        }, 800);
+      } else {
+        fb.className = "feedback error";
+        fb.textContent = "Fel lösenord. Kontrollera siffrorna mot alfabetet igen!";
+      }
+    }
+
+    document.getElementById("cipherInput").addEventListener("keyup", (e) => {
+      if (e.key === "Enter") checkCipher();
+    });
+  </script>
+</body>
+</html>

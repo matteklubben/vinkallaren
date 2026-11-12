@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Akt 3 - Desarmera Valvet</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .simon-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      max-width: 300px;
+      margin: 18px auto;
+    }
+    .simon-pad {
+      aspect-ratio: 1 / 1;
+      border-radius: 20px;
+      border: 3px solid rgba(255,255,255,0.2);
+      cursor: pointer;
+      opacity: 0.55;
+      transition: opacity 0.12s, transform 0.12s, box-shadow 0.12s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .simon-pad.active {
+      opacity: 1;
+      transform: scale(1.05);
+      border-color: #fff;
+    }
+    .pad-0 { background: #9e1b3b; }
+    .pad-0.active { box-shadow: 0 0 30px #ff3b6b; }
+    .pad-1 { background: #c99a1e; }
+    .pad-1.active { box-shadow: 0 0 30px #ffe066; }
+    .pad-2 { background: #267a4d; }
+    .pad-2.active { box-shadow: 0 0 30px #4dff9e; }
+    .pad-3 { background: #4a2a75; }
+    .pad-3.active { box-shadow: 0 0 30px #b37aff; }
+
+    .round-indicator {
+      text-align: center;
+      font-weight: 700;
+      color: var(--gold-light);
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="hud" class="hud-bar"></div>
+
+    <div class="card" id="gameCard">
+      <h2>Steg 3.2: Valvets Låsmekanism</h2>
+      <p>Sista utmaningen! Titta på i vilken ordning glasen blinkar och tryck sedan i <strong>exakt samma ordning</strong>. Klara 3 rundor!</p>
+
+      <div class="round-indicator" id="statusText">Tryck på Start för att börja</div>
+
+      <div class="simon-grid">
+        <button class="simon-pad pad-0" id="pad0" onclick="pressPad(0)">🍷</button>
+        <button class="simon-pad pad-1" id="pad1" onclick="pressPad(1)">🥂</button>
+        <button class="simon-pad pad-2" id="pad2" onclick="pressPad(2)">🍇</button>
+        <button class="simon-pad pad-3" id="pad3" onclick="pressPad(3)">🍾</button>
+      </div>
+
+      <button class="btn btn-gold" id="startBtn" onclick="startGame()">▶ Starta sekvensen</button>
+      <div id="feedback" class="feedback"></div>
+    </div>
+
+    <div class="card" id="rewardCard" style="display:none;">
+      <div class="digit-reveal">
+        <p style="margin:0; color:var(--gold); font-weight:700;">SISTA SIFFRAN UPPLÅST!</p>
+        <div class="digit-big" id="revealedDigit"></div>
+        <p style="margin:0;">Alla tre siffror är nu funna!</p>
+      </div>
+      <a href="final.html" class="btn btn-gold">Öppna slutkoden & fira! 🎉</a>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    renderHUD("Akt 3 • Steg 2/2", 2);
+
+    let sequence = [];
+    let playerStep = 0;
+    let round = 0;
+    const MAX_ROUNDS = 3;
+    let canClick = false;
+
+    function startGame() {
+      sequence = [];
+      round = 0;
+      document.getElementById("feedback").style.display = "none";
+      document.getElementById("startBtn").style.display = "none";
+      nextRound();
+    }
+
+    async function nextRound() {
+      round++;
+      playerStep = 0;
+      canClick = false;
+
+      // Runda 1: 3 blink, Runda 2: 4 blink, Runda 3: 5 blink
+      while (sequence.length < round + 2) {
+        sequence.push(Math.floor(Math.random() * 4));
+      }
+
+      document.getElementById("statusText").textContent = `Runda ${round} av ${MAX_ROUNDS} – Titta noga...`;
+      await new Promise(r => setTimeout(r, 600));
+
+      for (let i = 0; i < sequence.length; i++) {
+        await flashPad(sequence[i], 420);
+        await new Promise(r => setTimeout(r, 200));
+      }
+
+      document.getElementById("statusText").textContent = `Din tur! Upprepa (${sequence.length} tryck)`;
+      canClick = true;
+    }
+
+    function flashPad(idx, ms) {
+      return new Promise(resolve => {
+        const pad = document.getElementById("pad" + idx);
+        pad.classList.add("active");
+        setTimeout(() => {
+          pad.classList.remove("active");
+          resolve();
+        }, ms);
+      });
+    }
+
+    async function pressPad(idx) {
+      if (!canClick) return;
+      flashPad(idx, 180);
+
+      if (idx === sequence[playerStep]) {
+        playerStep++;
+        if (playerStep === sequence.length) {
+          canClick = false;
+          if (round >= MAX_ROUNDS) {
+            document.getElementById("statusText").textContent = "Valvet upplåst!";
+            setTimeout(() => {
+              document.getElementById("gameCard").style.display = "none";
+              document.getElementById("rewardCard").style.display = "block";
+              document.getElementById("revealedDigit").textContent = VAULT_CONFIG.digit3;
+              renderHUD("Alla Siffror Funna!", 3);
+            }, 600);
+          } else {
+            document.getElementById("statusText").textContent = "Snyggt! Nästa runda kommer...";
+            setTimeout(nextRound, 900);
+          }
+        }
+      } else {
+        canClick = false;
+        const fb = document.getElementById("feedback");
+        fb.className = "feedback error";
+        fb.textContent = "Fel ordning! Försök igen från runda 1.";
+        document.getElementById("statusText").textContent = "Sekvensen bröts!";
+        document.getElementById("startBtn").style.display = "inline-flex";
+        document.getElementById("startBtn").textContent = "↻ Försök igen";
+      }
+    }
+  </script>
+</body>
+</html>

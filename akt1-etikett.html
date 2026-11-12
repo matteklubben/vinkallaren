@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Akt 1 - Källarmästarens Anteckning</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .note-paper {
+      background: #f4ead5;
+      color: #2c1e16;
+      padding: 16px;
+      border-radius: 10px;
+      font-family: Georgia, serif;
+      font-style: italic;
+      border-left: 5px solid #8c233c;
+      margin-bottom: 16px;
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.12);
+    }
+    .note-paper p {
+      color: #2c1e16;
+      margin-bottom: 0;
+    }
+    .bottle-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .bottle-card {
+      background: var(--bg-card-elevated);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-main);
+    }
+    .bottle-card:active {
+      transform: scale(0.98);
+      border-color: var(--gold);
+    }
+    .bottle-title {
+      font-weight: 800;
+      color: var(--gold-light);
+      font-size: 1.05rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .bottle-meta {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="hud" class="hud-bar"></div>
+
+    <div class="card">
+      <h2>Steg 1.2: Källarmästarens Arkiv</h2>
+      <p>Ni hittade ett gulnat brev i arkivet. Läs noga och välj rätt flaska från hyllan nedan:</p>
+
+      <div class="note-paper">
+        <p>"Jag gömde telegrafens kodnyckel bakom vår mest dyrbara flaska. Den tappades exakt samma år som människan tog sina första steg på månen, och dess druvor växte i den svarta jorden på sluttningen av en aktiv vulkan i Medelhavet."</p>
+      </div>
+
+      <div class="bottle-grid">
+        <button class="bottle-card" onclick="pickBottle(false)">
+          <div class="bottle-title"><span>🍾 Château Margaux</span><span>1969</span></div>
+          <div class="bottle-meta">Bordeaux, Frankrike • Cabernet Sauvignon</div>
+        </button>
+
+        <button class="bottle-card" onclick="pickBottle(true)">
+          <div class="bottle-title"><span>🍷 Etna Rosso Riserva</span><span>1969</span></div>
+          <div class="bottle-meta">Sicilien, Italien • Nerello Mascalese</div>
+        </button>
+
+        <button class="bottle-card" onclick="pickBottle(false)">
+          <div class="bottle-title"><span>🍷 Etna Rosso Riserva</span><span>1972</span></div>
+          <div class="bottle-meta">Sicilien, Italien • Nerello Mascalese</div>
+        </button>
+
+        <button class="bottle-card" onclick="pickBottle(false)">
+          <div class="bottle-title"><span>🥂 Barolo Monfortino</span><span>1969</span></div>
+          <div class="bottle-meta">Piemonte, Italien • Nebbiolo</div>
+        </button>
+      </div>
+
+      <div id="feedback" class="feedback"></div>
+
+      <details class="hint-box">
+        <summary>Behöver ni en ledtråd?</summary>
+        <p>Månlandningen skedde år 1969, och Etna på Sicilien är Europas högsta aktiva vulkan.</p>
+      </details>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    renderHUD("Akt 1 • Steg 2/3", 0);
+
+    function pickBottle(isCorrect) {
+      const fb = document.getElementById("feedback");
+      if (isCorrect) {
+        fb.className = "feedback success";
+        fb.textContent = "Rätt flaska! Bakom etiketten sitter en blinkande telegraf...";
+        setTimeout(() => {
+          window.location.href = "akt1-morse.html";
+        }, 900);
+      } else {
+        fb.className = "feedback error";
+        fb.textContent = "Fel flaska! Kontrollera både årtalet och platsen i anteckningen.";
+      }
+    }
+  </script>
+</body>
+</html>
